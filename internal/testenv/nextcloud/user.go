@@ -32,7 +32,7 @@ func (n *Nextcloud) CreateUser(ctx context.Context, username, password string) e
 
 // CreateAppPassword converts a user's login password into a new app password.
 func (n *Nextcloud) CreateAppPassword(ctx context.Context, username, password string) (string, error) {
-	request, err := http.NewRequestWithContext(ctx, http.MethodPost, n.URL+"/ocs/v2.php/core/getapppassword?format=json", nil)
+	request, err := http.NewRequestWithContext(ctx, http.MethodGet, n.URL+"/ocs/v2.php/core/getapppassword?format=json", nil)
 	if err != nil {
 		return "", err
 	}
