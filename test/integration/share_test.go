@@ -19,7 +19,7 @@ var _ = Describe("public shares", func() {
 		Expect(err).NotTo(HaveOccurred())
 		owner, err := cloud.Client(cloud.AdminUsername, cloud.AdminPassword)
 		Expect(err).NotTo(HaveOccurred())
-		DeferCleanup(func(ctx SpecContext) { _ = owner.DeleteTable(ctx, table.ID) })
+		DeferCleanup(func(ctx SpecContext) { _, _ = owner.DeleteTable(ctx, table.ID) })
 		token, err := cloud.CreateShare(ctx, cloud.AdminUsername, cloud.AdminPassword, table.ID, "correct-horse", nextcloud.SharePermissions{Read: true, Create: true, Update: true, Delete: true})
 		Expect(err).NotTo(HaveOccurred())
 
@@ -40,7 +40,7 @@ var _ = Describe("public shares", func() {
 		Expect(err).NotTo(HaveOccurred())
 		owner, err := cloud.Client(cloud.AdminUsername, cloud.AdminPassword)
 		Expect(err).NotTo(HaveOccurred())
-		DeferCleanup(func(ctx SpecContext) { _ = owner.DeleteTable(ctx, table.ID) })
+		DeferCleanup(func(ctx SpecContext) { _, _ = owner.DeleteTable(ctx, table.ID) })
 		token, err := cloud.CreateShare(ctx, cloud.AdminUsername, cloud.AdminPassword, table.ID, "right-password", nextcloud.SharePermissions{Read: true})
 		Expect(err).NotTo(HaveOccurred())
 		public, err := tables.NewClient(cloud.URL)

@@ -17,7 +17,7 @@ var _ = Describe("rows", func() {
 		Expect(err).NotTo(HaveOccurred())
 		client, err := cloud.Client(cloud.AdminUsername, cloud.AdminPassword)
 		Expect(err).NotTo(HaveOccurred())
-		DeferCleanup(func(ctx SpecContext) { _ = client.DeleteTable(ctx, table.ID) })
+		DeferCleanup(func(ctx SpecContext) { _, _ = client.DeleteTable(ctx, table.ID) })
 		rows := client.Table(table.ID).Rows()
 
 		created, err := rows.Create(ctx, tables.CreateRowOptions{Values: tables.RowValues{column.ID: "Alice"}})
