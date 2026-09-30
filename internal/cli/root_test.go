@@ -2,7 +2,6 @@ package cli
 
 import (
 	"bytes"
-	"fmt"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -13,8 +12,8 @@ type memoryConfigStore struct {
 	err   error
 }
 
-func (s *memoryConfigStore) Load() (config, error)    { return s.value, s.err }
-func (s *memoryConfigStore) Save(value config) error { s.value = value; return s.err }
+func (s *memoryConfigStore) Load() (config, error) { return s.value, s.err }
+func (s *memoryConfigStore) Save(value config) error { return s.value, s.err }
 
 type memoryCredentialStore struct {
 	values map[string]string
@@ -95,9 +94,6 @@ var _ = Describe("root command", func() {
 	})
 
 	It("creates the production command", func() {
-		old := fmt.Sprintf("%s", GinkgoT().TempDir())
-		DeferCleanup(func() {})
-		_ = old
 		command, err := NewRootCommand()
 		Expect(err).NotTo(HaveOccurred())
 		Expect(command.Use).To(Equal("tables"))
