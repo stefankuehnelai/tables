@@ -102,4 +102,6 @@ jobs:
           --keep-env-var NEXTCLOUD_TABLES_TEST_TABLES_VERSION
           .#ciEnvironment
           -c bash -eo pipefail {0}
-        run: "ginkgo --race --fail-on-pending --fail-on-empty ./test/integration"
+        run: |
+          go mod tidy
+          go run github.com/onsi/ginkgo/v2/ginkgo --race --fail-on-pending --fail-on-empty ./test/integration
