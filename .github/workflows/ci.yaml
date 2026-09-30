@@ -72,7 +72,7 @@ jobs:
         DOCKER_HOST: "tcp://docker:2375"
         DOCKER_TLS_CERTDIR: ""
         NEXTCLOUD_TABLES_TEST_NEXTCLOUD_IMAGE: "nextcloud:${{ matrix.nextcloud }}"
-        NEXTCLOUD_TABLES_TEST_TABLES_REF: "v2.3.1"
+        NEXTCLOUD_TABLES_TEST_TABLES_VERSION: "2.3.1"
 
     services:
       docker:
@@ -99,7 +99,7 @@ jobs:
           --keep-env-var DOCKER_HOST
           --keep-env-var DOCKER_TLS_CERTDIR
           --keep-env-var NEXTCLOUD_TABLES_TEST_NEXTCLOUD_IMAGE
-          --keep-env-var NEXTCLOUD_TABLES_TEST_TABLES_REF
+          --keep-env-var NEXTCLOUD_TABLES_TEST_TABLES_VERSION
           .#ciEnvironment
           -c bash -eo pipefail {0}
         run: "ginkgo --race --fail-on-pending --fail-on-empty ./test/integration"
