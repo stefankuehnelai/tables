@@ -1,0 +1,105 @@
+name: "CI"
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: "read"
+
+jobs:
+  nix:
+    runs-on: "ubuntu-latest"
+
+    container:
+      image: "docker.io/nixos/nix@sha256:b9c9611c8530fa8049a1215b20638536e1e71dcaf85212e47845112caf3adeea" # v2.34.0
+      env:
+        NIX_CONFIG: "experimental-features = nix-command flakes"
+        DOCKER_HOST: "tcp://docker:2375"
+        DOCKER_TLS_CERTDIR: ""
+
+    services:
+      docker:
+        image: "docker:27-dind"
+        env:
+          DOCKER_TLS_CERTDIR: ""
+        options: >-
+          --privileged
+          --health-cmd "docker info"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    steps:
+      - name: "GitHub: Checkout Repository"
+        run: |
+          git init --quiet --initial-branch "main"
+          git config --global --add safe.directory "*"
+          git remote add origin "${{ github.server_url }}/${{ github.repository }}"
+          git config --local http.${{ github.server_url }}/.extraheader "Authorization: basic $(echo -n "x-access-token:${{ github.token }}" | base64 --wrap=0)"
+          git fetch --quiet --no-tags --depth=1 origin "${{ github.ref }}"
+          git checkout --quiet "${{ github.sha }}"
+      - name: "Task: CI"
+        shell: >
+          nix develop
+          --ignore-env
+          --keep-env-var CI
+          --keep-env-var HOME
+          --keep-env-var NIX_CONFIG
+          --keep-env-var DOCKER_HOST
+          --keep-env-var DOCKER_TLS_CERTDIR
+          .#ciEnvironment
+          -c bash -eo pipefail {0}
+        run: "task run:workflow WORKFLOW_NAME='ci'"
+
+  compatibility:
+    runs-on: "ubuntu-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        nextcloud:
+          - "33-apache"
+          - "34-apache"
+          - "35-apache"
+
+    container:
+      image: "docker.io/nixos/nix@sha256:b9c9611c8530fa8049a1215b20638536e1e71dcaf85212e47845112caf3adeea"
+      env:
+        NIX_CONFIG: "experimental-features = nix-command flakes"
+        DOCKER_HOST: "tcp://docker:2375"
+        DOCKER_TLS_CERTDIR: ""
+        NEXTCLOUD_TABLES_TEST_NEXTCLOUD_IMAGE: "nextcloud:${{ matrix.nextcloud }}"
+        NEXTCLOUD_TABLES_TEST_TABLES_REF: "v2.3.1"
+
+    services:
+      docker:
+        image: "docker:27-dind"
+        env:
+          DOCKER_TLS_CERTDIR: ""
+        options: "--privileged"
+
+    steps:
+      - name: "GitHub: Checkout Repository"
+        run: |
+          git init --quiet --initial-branch "main"
+          git config --global --add safe.directory "*"
+          git remote add origin "${{ github.server_url }}/${{ github.repository }}"
+          git config --local http.${{ github.server_url }}/.extraheader "Authorization: basic $(echo -n "x-access-token:${{ github.token }}" | base64 --wrap=0)"
+          git fetch --quiet --no-tags --depth=1 origin "${{ github.ref }}"
+          git checkout --quiet "${{ github.sha }}"
+      - name: "Ginkgo: Compatibility"
+        shell: >
+          nix develop
+          --ignore-env
+          --keep-env-var HOME
+          --keep-env-var NIX_CONFIG
+          --keep-env-var DOCKER_HOST
+          --keep-env-var DOCKER_TLS_CERTDIR
+          --keep-env-var NEXTCLOUD_TABLES_TEST_NEXTCLOUD_IMAGE
+          --keep-env-var NEXTCLOUD_TABLES_TEST_TABLES_REF
+          .#ciEnvironment
+          -c bash -eo pipefail {0}
+        run: "ginkgo --race --fail-on-pending --fail-on-empty ./test/integration"

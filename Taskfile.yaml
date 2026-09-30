@@ -1,0 +1,279 @@
+version: "3.48"
+
+dotenv:
+  - ".env"
+
+env:
+  CGO_ENABLED: "0"
+
+vars:
+  NEXTCLOUD_IMAGE: '{{ default "nextcloud:35.0.1-apache" .NEXTCLOUD_TABLES_TEST_NEXTCLOUD_IMAGE }}'
+  TABLES_REF: '{{ default "v2.3.1" .NEXTCLOUD_TABLES_TEST_TABLES_REF }}'
+
+tasks:
+  default:
+    desc: "Run default task"
+    cmds:
+      - task: "lint"
+      - task: "test:coverage"
+      - task: "build"
+
+  format:
+    desc: "Format project"
+    cmds:
+      - task: "format:go"
+      - task: "format:nix"
+
+  format:go:
+    desc: "Format project with Go"
+    cmds:
+      - task: "format:go:golangci-lint"
+
+  format:go:golangci-lint:
+    desc: "Format project with Golangci-lint"
+    sources:
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+    cmds:
+      - "golangci-lint fmt ./..."
+
+  format:nix:
+    desc: "Format project with Nixfmt"
+    sources:
+      - "**/*.nix"
+    cmds:
+      - "nix fmt"
+
+  lint:
+    desc: "Lint project"
+    cmds:
+      - task: "lint:go"
+
+  lint:go:
+    desc: "Lint project with Go"
+    cmds:
+      - task: "lint:go:golangci-lint"
+
+  lint:go:golangci-lint:
+    desc: "Lint project with Golangci-lint"
+    sources:
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+    cmds:
+      - "golangci-lint run ./..."
+
+  test:
+    desc: "Test project"
+    cmds:
+      - task: "test:go"
+
+  test:go:
+    desc: "Test project with Go"
+    cmds:
+      - task: "test:go:ginkgo"
+
+  test:go:ginkgo:
+    desc: "Test project with Ginkgo"
+    sources:
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+    cmds:
+      - >-
+        ginkgo
+        --recursive
+        --race
+        --randomize-all
+        --randomize-suites
+        --fail-on-pending
+        --fail-on-empty
+        --keep-going
+
+  test:coverage:
+    desc: "Test project with coverage"
+    cmds:
+      - task: "test:coverage:go"
+
+  test:coverage:go:
+    desc: "Test project with coverage with Go"
+    cmds:
+      - task: "test:coverage:go:ginkgo"
+      - task: "test:coverage:go:check"
+
+  test:coverage:go:ginkgo:
+    internal: true
+    sources:
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+    generates:
+      - "coverage.out"
+    cmds:
+      - >-
+        ginkgo
+        --recursive
+        --race
+        --randomize-all
+        --randomize-suites
+        --fail-on-pending
+        --fail-on-empty
+        --keep-going
+        --cover
+        --coverpkg=./...
+        --coverprofile=coverage.out
+
+  test:coverage:go:check:
+    internal: true
+    preconditions:
+      - sh: '{{ eq .COVERAGE "100.0%" }}'
+        msg: 'Go test coverage is {{ .COVERAGE }}. It must be 100.0%.'
+    vars:
+      COVERAGE:
+        sh: >-
+          go tool cover -func=coverage.out
+          | tail -n 1
+          | awk '{print $3}'
+
+  build:
+    desc: "Build project"
+    cmds:
+      - task: "build:nix"
+
+  build:nix:
+    desc: "Build project with Nix"
+    sources:
+      - "**/*.go"
+      - "**/*.nix"
+      - "go.mod"
+      - "go.sum"
+      - "flake.nix"
+      - "flake.lock"
+    cmds:
+      - "nix build --no-link --print-out-paths .#tables"
+
+  run:
+    desc: "Run project"
+    cmds:
+      - task: "run:nix"
+
+  run:nix:
+    desc: "Run project with Nix"
+    cmds:
+      - "nix run .#tables -- {{ .CLI_ARGS }}"
+
+  run:workflow:
+    desc: "Run project with Workflow"
+    interactive: true
+    cmds:
+      - task: "run:workflow:{{ .WORKFLOW_NAME }}"
+    requires:
+      vars:
+        - name: "WORKFLOW_NAME"
+          enum:
+            - "ci"
+            - "cd"
+
+  run:workflow:ci:
+    internal: true
+    cmds:
+      - task: "default"
+
+  run:workflow:cd:
+    internal: true
+    cmds:
+      - task: "default"
+
+  run:workflow:local:
+    desc: "Run project locally with Workflow"
+    interactive: true
+    cmds:
+      - task: "run:workflow:local:{{ .WORKFLOW_NAME }}"
+    requires:
+      vars:
+        - name: "WORKFLOW_NAME"
+          enum:
+            - "ci"
+            - "cd"
+
+  run:workflow:local:ci:
+    internal: true
+    cmds:
+      - task: "run:workflow:local:internal"
+        vars:
+          NIX_DEVELOP_ENVIRONMENT: "ciEnvironment"
+          NIX_DEVELOP_COMMAND: "task run:workflow WORKFLOW_NAME='ci' && task clean"
+
+  run:workflow:local:cd:
+    internal: true
+    cmds:
+      - task: "run:workflow:local:internal"
+        vars:
+          NIX_DEVELOP_ENVIRONMENT: "cdEnvironment"
+          NIX_DEVELOP_COMMAND: "task run:workflow WORKFLOW_NAME='cd' && task clean"
+
+  run:workflow:local:internal:
+    internal: true
+    cmds:
+      - defer: |
+          docker run \
+            --rm \
+            --volume "{{ .ROOT_DIR }}:/mnt/local" \
+            --entrypoint "chown" \
+              {{ .NIX_DEVELOP_DOCKER_IMAGE_REFERENCE }} \
+                --recursive \
+                --from "root:root" \
+                "{{ .HOST_USER_ID }}:{{ .HOST_GROUP_ID }}" \
+                "/mnt/local"
+      - cmd: |
+          docker run \
+            --rm \
+            --network "host" \
+            --volume "{{ .ROOT_DIR }}:/mnt/local" \
+            --workdir "/mnt/local" \
+            --env CI="true" \
+            --env NIX_CONFIG="experimental-features = nix-command flakes" \
+            --env DOCKER_HOST="{{ .DOCKER_HOST }}" \
+              {{ .NIX_DEVELOP_DOCKER_IMAGE_REFERENCE }} \
+                bash -c "\
+                  git config --global --add safe.directory /mnt/local && \
+                  nix develop .#{{ .NIX_DEVELOP_ENVIRONMENT }} \
+                    --ignore-env \
+                    --keep-env-var CI \
+                    --keep-env-var HOME \
+                    --keep-env-var NIX_CONFIG \
+                    --keep-env-var DOCKER_HOST \
+                    --command bash -c \"{{ .NIX_DEVELOP_COMMAND }}\" \
+                "
+    requires:
+      vars:
+        - name: "NIX_DEVELOP_ENVIRONMENT"
+          enum:
+            - "ciEnvironment"
+            - "cdEnvironment"
+            - "devEnvironment"
+        - name: "NIX_DEVELOP_COMMAND"
+    vars:
+      NIX_DEVELOP_DOCKER_IMAGE_REFERENCE: "docker.io/nixos/nix@sha256:b9c9611c8530fa8049a1215b20638536e1e71dcaf85212e47845112caf3adeea"
+      DOCKER_HOST: '{{ default "unix:///var/run/docker.sock" .DOCKER_HOST }}'
+      HOST_USER_ID:
+        sh: "id --user"
+      HOST_GROUP_ID:
+        sh: "id --group"
+
+  clean:
+    desc: "Clean project"
+    cmds:
+      - task: "clean:go"
+      - task: "clean:task"
+
+  clean:go:
+    desc: "Clean project with Go"
+    cmds:
+      - "rm -f coverage.out"
+
+  clean:task:
+    desc: "Clean project with Task"
+    cmds:
+      - "rm -rf .task"
