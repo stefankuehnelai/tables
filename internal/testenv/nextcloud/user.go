@@ -23,7 +23,9 @@ func (n *Nextcloud) CreateUser(ctx context.Context, username, password string) e
 	if err != nil {
 		return fmt.Errorf("create user: %w", err)
 	}
-	defer response.Body.Close()
+	defer func() {
+		_ = response.Body.Close()
+	}()
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return fmt.Errorf("create user: HTTP %d", response.StatusCode)
 	}
@@ -43,7 +45,9 @@ func (n *Nextcloud) CreateAppPassword(ctx context.Context, username, password st
 	if err != nil {
 		return "", fmt.Errorf("create app password: %w", err)
 	}
-	defer response.Body.Close()
+	defer func() {
+		_ = response.Body.Close()
+	}()
 	var envelope struct {
 		OCS struct {
 			Data struct {
