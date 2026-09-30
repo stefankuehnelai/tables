@@ -50,13 +50,13 @@
       devShells = forAllSystems (
         { pkgs, ... }:
         {
-          ciEnvironment = pkgs.mkShellNoCC {
+          ciEnvironment = pkgs.mkShell {
             packages = (dependencies pkgs) ++ (ciDependencies pkgs);
           };
-          cdEnvironment = pkgs.mkShellNoCC {
+          cdEnvironment = pkgs.mkShell {
             packages = (dependencies pkgs) ++ (cdDependencies pkgs);
           };
-          devEnvironment = pkgs.mkShellNoCC {
+          devEnvironment = pkgs.mkShell {
             packages =
               (dependencies pkgs)
               ++ (ciDependencies pkgs)
