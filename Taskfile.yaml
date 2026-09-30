@@ -3,6 +3,9 @@ version: "3.48"
 dotenv:
   - ".env"
 
+env:
+  CGO_ENABLED: "0"
+
 vars:
   NEXTCLOUD_IMAGE: '{{ default "nextcloud:35.0.1-apache" .NEXTCLOUD_TABLES_TEST_NEXTCLOUD_IMAGE }}'
   TABLES_REF: '{{ default "v2.3.1" .NEXTCLOUD_TABLES_TEST_TABLES_REF }}'
