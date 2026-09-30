@@ -1,3 +1,4 @@
+// Package tables provides a reusable client for Nextcloud Tables.
 package tables
 
 import "net/http"

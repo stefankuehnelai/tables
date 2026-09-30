@@ -7,6 +7,7 @@ import (
 )
 
 // TablesError is the stable public error contract used by the library and CLI.
+//revive:disable-next-line:exported TablesError is the documented stable public API name.
 type TablesError interface {
 	error
 	Code() int
