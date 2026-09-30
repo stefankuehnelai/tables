@@ -94,6 +94,7 @@ func newRootCommand(deps dependencies) *cobra.Command {
 	command.AddCommand(app.newCreateCommand())
 	command.AddCommand(app.newUpdateCommand())
 	command.AddCommand(app.newDeleteCommand())
+	command.AddCommand(app.newColumnsCommand())
 	return command
 }
 
