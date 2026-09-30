@@ -94,7 +94,7 @@ tasks:
       - "go.sum"
     cmds:
       - >-
-        ginkgo
+        go run github.com/onsi/ginkgo/v2/ginkgo
         --recursive
         --race
         --randomize-all
@@ -126,7 +126,7 @@ tasks:
       - "coverage.out"
     cmds:
       - >-
-        ginkgo
+        go run github.com/onsi/ginkgo/v2/ginkgo
         --recursive
         --race
         --randomize-all
