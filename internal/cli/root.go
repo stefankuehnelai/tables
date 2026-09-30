@@ -82,6 +82,11 @@ func newRootCommand(deps dependencies) *cobra.Command {
 	flags.StringVar(&app.root.jq, "jq", "", "Filter JSON output using a jq expression")
 	flags.StringVar(&app.root.template, "template", "", "Format JSON output using a Go template")
 	command.AddCommand(app.newAuthCommand())
+	command.AddCommand(app.newListCommand())
+	command.AddCommand(app.newGetCommand())
+	command.AddCommand(app.newCreateCommand())
+	command.AddCommand(app.newUpdateCommand())
+	command.AddCommand(app.newDeleteCommand())
 	return command
 }
 
