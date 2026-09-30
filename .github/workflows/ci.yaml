@@ -41,7 +41,7 @@ jobs:
           git remote add origin "${{ github.server_url }}/${{ github.repository }}"
           git config --local http.${{ github.server_url }}/.extraheader "Authorization: basic $(echo -n "x-access-token:${{ github.token }}" | base64 --wrap=0)"
           git fetch --quiet --no-tags --depth=1 origin "${{ github.ref }}"
-          git checkout --quiet "${{ github.sha }}"
+          git checkout --quiet FETCH_HEAD
       - name: "Task: CI"
         shell: >
           nix develop
@@ -89,7 +89,7 @@ jobs:
           git remote add origin "${{ github.server_url }}/${{ github.repository }}"
           git config --local http.${{ github.server_url }}/.extraheader "Authorization: basic $(echo -n "x-access-token:${{ github.token }}" | base64 --wrap=0)"
           git fetch --quiet --no-tags --depth=1 origin "${{ github.ref }}"
-          git checkout --quiet "${{ github.sha }}"
+          git checkout --quiet FETCH_HEAD
       - name: "Ginkgo: Compatibility"
         shell: >
           nix develop
