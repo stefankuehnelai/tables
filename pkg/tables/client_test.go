@@ -1,7 +1,6 @@
 package tables
 
 import (
-	"context"
 	"errors"
 	"io"
 	"net/http"
