@@ -95,7 +95,7 @@ tasks:
     cmds:
       - >-
         go run github.com/onsi/ginkgo/v2/ginkgo
-        --recursive
+        -r
         --race
         --randomize-all
         --randomize-suites
@@ -127,7 +127,7 @@ tasks:
     cmds:
       - >-
         go run github.com/onsi/ginkgo/v2/ginkgo
-        --recursive
+        -r
         --race
         --randomize-all
         --randomize-suites
