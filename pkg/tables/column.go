@@ -24,59 +24,59 @@ type ListColumnsOptions struct{}
 
 // CreateColumnOptions defines a supported generic column creation payload.
 type CreateColumnOptions struct {
-	Title                    string
-	TechnicalName            string
-	Type                     string
-	Subtype                  string
-	Mandatory                bool
-	Description              string
-	NumberDefault            *float64
-	NumberMin                *float64
-	NumberMax                *float64
-	NumberDecimals           *int
-	NumberPrefix             string
-	NumberSuffix             string
-	TextDefault              string
-	TextAllowedPattern       string
-	TextMaxLength            *int
-	TextUnique               *bool
-	SelectionOptions         string
-	SelectionDefault         string
-	DatetimeDefault          string
-	UsergroupDefault         string
-	UsergroupMultipleItems   *bool
-	UsergroupSelectUsers     *bool
-	UsergroupSelectGroups    *bool
-	UsergroupSelectTeams     *bool
-	UsergroupShowUserStatus  *bool
+	Title                   string
+	TechnicalName           string
+	Type                    string
+	Subtype                 string
+	Mandatory               bool
+	Description             string
+	NumberDefault           *float64
+	NumberMin               *float64
+	NumberMax               *float64
+	NumberDecimals          *int
+	NumberPrefix            string
+	NumberSuffix            string
+	TextDefault             string
+	TextAllowedPattern      string
+	TextMaxLength           *int
+	TextUnique              *bool
+	SelectionOptions        string
+	SelectionDefault        string
+	DatetimeDefault         string
+	UsergroupDefault        string
+	UsergroupMultipleItems  *bool
+	UsergroupSelectUsers    *bool
+	UsergroupSelectGroups   *bool
+	UsergroupSelectTeams    *bool
+	UsergroupShowUserStatus *bool
 }
 
 // UpdateColumnOptions defines mutable column fields.
 type UpdateColumnOptions struct {
-	Title                    *string
-	TechnicalName            *string
-	Subtype                  *string
-	Mandatory                *bool
-	Description              *string
-	NumberDefault            *float64
-	NumberMin                *float64
-	NumberMax                *float64
-	NumberDecimals           *int
-	NumberPrefix             *string
-	NumberSuffix             *string
-	TextDefault              *string
-	TextAllowedPattern       *string
-	TextMaxLength            *int
-	TextUnique               *bool
-	SelectionOptions         *string
-	SelectionDefault         *string
-	DatetimeDefault          *string
-	UsergroupDefault         *string
-	UsergroupMultipleItems   *bool
-	UsergroupSelectUsers     *bool
-	UsergroupSelectGroups    *bool
-	UsergroupSelectTeams     *bool
-	UsergroupShowUserStatus  *bool
+	Title                   *string
+	TechnicalName           *string
+	Subtype                 *string
+	Mandatory               *bool
+	Description             *string
+	NumberDefault           *float64
+	NumberMin               *float64
+	NumberMax               *float64
+	NumberDecimals          *int
+	NumberPrefix            *string
+	NumberSuffix            *string
+	TextDefault             *string
+	TextAllowedPattern      *string
+	TextMaxLength           *int
+	TextUnique              *bool
+	SelectionOptions        *string
+	SelectionDefault        *string
+	DatetimeDefault         *string
+	UsergroupDefault        *string
+	UsergroupMultipleItems  *bool
+	UsergroupSelectUsers    *bool
+	UsergroupSelectGroups   *bool
+	UsergroupSelectTeams    *bool
+	UsergroupShowUserStatus *bool
 }
 
 // Columns is a column API scoped to one table.
