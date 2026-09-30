@@ -80,6 +80,12 @@ func (r Rows) List(ctx context.Context, options ListRowsOptions) ([]Row, error) 
 		query.Set("offset", strconv.Itoa(options.Offset))
 	}
 	var result []Row
+	if r.share == nil {
+		if err := r.client.doJSON(ctx, http.MethodGet, fmt.Sprintf("/tables/%d/rows", r.tableID), query, nil, &result); err != nil {
+			return nil, err
+		}
+		return result, nil
+	}
 	if err := r.client.doOCS(ctx, r.httpClient, http.MethodGet, r.route(""), query, nil, &result); err != nil {
 		return nil, err
 	}
