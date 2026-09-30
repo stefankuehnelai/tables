@@ -88,7 +88,7 @@ func (s *shareState) login(ctx context.Context, client *Client) error {
 	if err != nil {
 		return &Error{code: CodeTransport, message: "authenticate public share", cause: err}
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	if response.StatusCode == http.StatusFound || response.StatusCode == http.StatusSeeOther {
 		return nil
 	}

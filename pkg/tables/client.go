@@ -131,7 +131,7 @@ func (c *Client) do(ctx context.Context, httpClient *http.Client, method string,
 	if err != nil {
 		return &Error{code: CodeTransport, message: "perform HTTP request", cause: err}
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {

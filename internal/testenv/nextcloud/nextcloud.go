@@ -103,7 +103,7 @@ func (n *Nextcloud) installTables(ctx context.Context, version string) error {
 	if err != nil {
 		return fmt.Errorf("download Tables %s: %w", version, err)
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	if response.StatusCode != http.StatusOK {
 		return fmt.Errorf("download Tables %s: HTTP %d", version, response.StatusCode)
 	}
