@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"sort"
 	"strconv"
 )
 
@@ -150,18 +149,9 @@ func (r Rows) prepare(ctx context.Context) error {
 	return tableID(r.tableID, "table ID")
 }
 
-// rowPayload converts the map representation into the API's deterministic cell list.
+// rowPayload keeps the v2 wire format keyed by column identifier.
 func rowPayload(values RowValues) map[string]any {
-	ids := make([]int64, 0, len(values))
-	for id := range values {
-		ids = append(ids, id)
-	}
-	sort.Slice(ids, func(i int, j int) bool { return ids[i] < ids[j] })
-	cells := make([]Cell, 0, len(ids))
-	for _, id := range ids {
-		cells = append(cells, Cell{ColumnID: id, Value: values[id]})
-	}
-	return map[string]any{"data": cells}
+	return map[string]any{"data": values}
 }
 
 // validateRowValues ensures mutation payloads are nonempty and use valid column IDs.
