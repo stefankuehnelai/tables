@@ -143,5 +143,5 @@ func (n *Nextcloud) waitForTables(ctx context.Context, timeout time.Duration) er
 		case <-time.After(500 * time.Millisecond):
 		}
 	}
-	return fmt.Errorf("Tables did not become ready before timeout")
+	return fmt.Errorf("tables did not become ready before timeout")
 }
