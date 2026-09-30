@@ -40,6 +40,7 @@ func New(ctx context.Context, options ...Option) (*Nextcloud, error) {
 		Env: map[string]string{
 			"NEXTCLOUD_ADMIN_USER":     cfg.adminUsername,
 			"NEXTCLOUD_ADMIN_PASSWORD": cfg.adminPassword,
+			"SQLITE_DATABASE":          "nextcloud",
 		},
 		WaitingFor: wait.ForHTTP("/status.php").WithPort("80/tcp").WithStartupTimeout(cfg.startupTimeout),
 	}
@@ -65,6 +66,9 @@ func New(ctx context.Context, options ...Option) (*Nextcloud, error) {
 	instance := &Nextcloud{
 		URL: "http://" + host + ":" + port.Port(), AdminUsername: cfg.adminUsername,
 		AdminPassword: cfg.adminPassword, container: container,
+	}
+	if _, err := instance.OCC(ctx, "config:system:set", "trusted_domains", "1", "--value="+host); err != nil {
+		return nil, fmt.Errorf("trust mapped Nextcloud host: %w", err)
 	}
 	if err := instance.installTables(ctx, cfg.tablesVersion); err != nil {
 		return nil, err
