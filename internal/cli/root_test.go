@@ -13,7 +13,10 @@ type memoryConfigStore struct {
 }
 
 func (s *memoryConfigStore) Load() (config, error) { return s.value, s.err }
-func (s *memoryConfigStore) Save(value config) error { return s.value, s.err }
+func (s *memoryConfigStore) Save(value config) error {
+	s.value = value
+	return s.err
+}
 
 type memoryCredentialStore struct {
 	values map[string]string
